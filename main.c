@@ -1,52 +1,47 @@
 // Artem Tagintsev, CS360, 09/03/2024, hw1
+#include "CheckErrors.h"
 #include "list.h"
 #include "hash.h"
 
-int main(int argc, char *argv[]){
-	
+int main(int argc, char *argv[]){	
 	// Make sure the user provides 2 or more arguments
-	if(argc < 2){
-		fprintf(stderr, "ERROR: Provide 2 or more arguments!\n");
-		return 1;
-	}
-
-	// Check if the first character of argv[1] is a '-' or a number, if its a number throw up an error
-	if(isdigit(argv[1][0])){
-		fprintf(stderr, "ERROR: number must be trailed by a dash, <-number>\n");
-		return 1;
-	}
+	if(checkArgumentsFirst(argc)) return 1;
 
 	int number = 0; // Store the number the user provides
 	int startReadingFiles = 1; // By default start reading the files from argv[1]
+	int skipNumCheck = 0; // Flag for skipping the number checking function
 
-	// If user inputs a number for argv[1] then then make sure the number is valid
-	if(argv[1][0] == '-'){
-		// If a number is given, make sure user provided 3 or more arguments
-		if(argc < 3){
-			fprintf(stderr, "ERROR: provide file(s) after the number!\n");
+	// If argv[1][0] is a '-' or a number, set flag to skip number checking function
+	if(argv[1][0] != '-' && !isdigit(argv[1][0]) ) skipNumCheck = 1;
+
+	// If flag isn't set, proceed to call function that checks if a number is valid
+	if(!skipNumCheck){
+		// If checkNumber returns 1, also return 1 in main to exit program
+		if(checkNumber(argv[1], argc)) {
 			return 1;
-		}
-		for(int i = 1; argv[1][i] != '\0'; i++){
-			// If input isn't a number, throw an error
-			if(!isdigit(argv[1][i])){
-				fprintf(stderr, "ERROR: Make sure you input a number after the dash, <-number>\n");
+		}else {
+			number = atoi(argv[1] + 1); // convert argv[1] to a number
+			if(number == 0){
+				fprintf(stderr, "ERROR: make sure your number is great than '0'\n");
 				return 1;
 			}
+			startReadingFiles = 2; // Since we were given a number, increment startReadingFiles to start readin from argv[2]
+			printf("%d\n", number);
 		}
-		// If number is valid, then convert input to an int and store in 'number', then update startReadingFiles to 2 so the program knows to start reading files from argv[2]
-		number = atoi(argv[1] + 1);
-		if(number == 0){
-			fprintf(stderr, "ERROR: make sure your number is greater than '0'\n");
-			return 1;
-		}
-		printf("%d\n", number);
-		startReadingFiles = 2;
 	}
 
-	//TODO: read files and make sure they aren't empty
-
+	FILE *fp;
+	char *fileName;
 	for(int i = startReadingFiles; i < argc; i++) {
-		printf("%s\n", argv[i]);
+		fileName = argv[i];
+
+		fp = fopen(fileName, "r");
+		if(fp == NULL){
+			fprintf(stderr, "ERROR: file <%s> is invalid!\n", fileName);
+			return 1;
+		}
+		printf("%s\n", fileName);
+		fclose(fp);
 	}
 
 
