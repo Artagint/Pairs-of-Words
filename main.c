@@ -2,6 +2,7 @@
 #include "CheckErrors.h"
 #include "list.h"
 #include "hash.h"
+#include "getWord.h"
 
 int main(int argc, char *argv[]){	
 	// Make sure the user provides 2 or more arguments
@@ -19,19 +20,25 @@ int main(int argc, char *argv[]){
 		// If checkNumber returns 1, also return 1 in main to exit program
 		if(checkNumber(argv[1], argc)) {
 			return 1;
-		}else {
+		}
+		else {
 			number = atoi(argv[1] + 1); // convert argv[1] to a number
 			if(number == 0){
 				fprintf(stderr, "ERROR: make sure your number is great than '0'\n");
 				return 1;
 			}
 			startReadingFiles = 2; // Since we were given a number, increment startReadingFiles to start readin from argv[2]
-			printf("%d\n", number);
+			// printf("%d\n", number);
 		}
 	}
 
 	FILE *fp;
 	char *fileName;
+	char str1[200]; // Stores string 1
+	char str2[200]; // Stores string 2
+	int toggleString = 0; // Used to toggle between str1 and str2, when str1 is made, go to str2 and vice versa
+	char *word; // Pointer that allocates memory for where we store the next word
+
 	for(int i = startReadingFiles; i < argc; i++) {
 		fileName = argv[i];
 
@@ -41,10 +48,24 @@ int main(int argc, char *argv[]){
 			return 1;
 		}
 		printf("%s\n", fileName);
+
+		while((word = getNextWord(fp)) != NULL){ // Loop until the end of the file is reached
+			// If toggleString is 0, copy the word into str1, then set toggleString to 1 to then get another word into str2
+			if(toggleString == 0){
+				strcpy(str1, word);
+				toggleString = 1;
+			}
+			// If toggleString is 1, copy the word into str2
+			else{
+				strcpy(str2, word);
+				// TODO: call hash function and pass str1 and str2 into it
+				printf("     %s %s\n", str1, str2);
+				strcpy(str1, str2); // Move down a word, so copy str2 into str1 to continue to the next pair of words
+				toggleString = 1; // Keep toggleString set to 1 so we can continue moving down words and copying str2 to str1
+			}
+			free(word);
+		}
 		fclose(fp);
 	}
-
-
-
 	return 0;
 }
