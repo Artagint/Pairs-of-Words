@@ -1,7 +1,7 @@
 // Artem Tagintsev, CS360, 09/03/2024, hw1
 #include "CheckErrors.h"
 #include "list.h"
-#include "hash.h"
+#include "crc64.h"
 #include "getWord.h"
 
 int main(int argc, char *argv[]){	
@@ -18,10 +18,10 @@ int main(int argc, char *argv[]){
 	// If flag isn't set, proceed to call function that checks if a number is valid
 	if(!skipNumCheck){
 		// If checkNumber returns 1, also return 1 in main to exit program
-		if(checkNumber(argv[1], argc)) {
+		if(checkNumber(argv[1], argc)){
 			return 1;
 		}
-		else {
+		else{
 			number = atoi(argv[1] + 1); // convert argv[1] to a number
 			if(number == 0){
 				fprintf(stderr, "ERROR: make sure your number is great than '0'\n");
@@ -38,16 +38,24 @@ int main(int argc, char *argv[]){
 	char str2[200]; // Stores string 2
 	int toggleString = 0; // Used to toggle between str1 and str2, when str1 is made, go to str2 and vice versa
 	char *word; // Pointer that allocates memory for where we store the next word
-
-	for(int i = startReadingFiles; i < argc; i++) {
+	
+	// Before processing contents of a file, checks if all files are valid and exits if even just one is not a valid file
+	// function call
+	for(int i = startReadingFiles; i <argc; i++){
 		fileName = argv[i];
-
 		fp = fopen(fileName, "r");
 		if(fp == NULL){
 			fprintf(stderr, "ERROR: file <%s> is invalid!\n", fileName);
 			return 1;
 		}
 		printf("%s\n", fileName);
+		fclose(fp);
+	}
+
+	for(int i = startReadingFiles; i < argc; i++){
+		fileName = argv[i];
+
+		fp = fopen(fileName, "r");
 
 		while((word = getNextWord(fp)) != NULL){ // Loop until the end of the file is reached
 			// If toggleString is 0, copy the word into str1, then set toggleString to 1 to then get another word into str2
@@ -57,15 +65,27 @@ int main(int argc, char *argv[]){
 			}
 			// If toggleString is 1, copy the word into str2
 			else{
-				strcpy(str2, word);
-				// TODO: call hash function and pass str1 and str2 into it
-				printf("     %s %s\n", str1, str2);
+				strcpy(str2, word); 
+
+				// This is where memory gets allocated for the word pair, and passed to the hash function
+				char *wordPair;
+				wordPair = malloc(strlen(str1) + strlen(str2) + 2); // Allocated memory for str1 + str2 + space + null terminator
+				strcpy(wordPair, str1);
+				strcat(wordPair, " ");
+				strcat(wordPair, str2);
+				unsigned long long hashNumber = crc64(wordPair);
+				printf("Word Pair:  %s <> and Hash Value:%llu\n", wordPair, hashNumber);
+
 				strcpy(str1, str2); // Move down a word, so copy str2 into str1 to continue to the next pair of words
 				toggleString = 1; // Keep toggleString set to 1 so we can continue moving down words and copying str2 to str1
+				free(wordPair);
 			}
 			free(word);
 		}
 		fclose(fp);
+		// After file is closed set toggleString back to 0, this is crucial because if you don't do this then the first 
+		// word of the new file will be paired with the last word of the previous file esentially creating an extra word pair
+		toggleString = 0;
 	}
 	return 0;
 }
