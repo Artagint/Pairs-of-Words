@@ -10,3 +10,5 @@ int checkArgumentsFirst(int argc);
 
 // Check if first character in argv[1] is a '-', and check to make sure a number is valid
 int checkNumber(char *argv, int argc);
+
+int checkFile(char **argv, int argc, int startReadingFiles);

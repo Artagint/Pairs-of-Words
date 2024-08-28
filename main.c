@@ -40,18 +40,9 @@ int main(int argc, char *argv[]){
 	char *word; // Pointer that allocates memory for where we store the next word
 	
 	// Before processing contents of a file, checks if all files are valid and exits if even just one is not a valid file
-	// function call
-	for(int i = startReadingFiles; i <argc; i++){
-		fileName = argv[i];
-		fp = fopen(fileName, "r");
-		if(fp == NULL){
-			fprintf(stderr, "ERROR: file <%s> is invalid!\n", fileName);
-			return 1;
-		}
-		printf("%s\n", fileName);
-		fclose(fp);
-	}
+	if(checkFile(argv, argc, startReadingFiles))  return 1;
 
+	// Start reading files and pulling out and passing words pairs
 	for(int i = startReadingFiles; i < argc; i++){
 		fileName = argv[i];
 
@@ -74,7 +65,7 @@ int main(int argc, char *argv[]){
 				strcat(wordPair, " ");
 				strcat(wordPair, str2);
 				unsigned long long hashNumber = crc64(wordPair);
-				printf("Word Pair:  %s <> and Hash Value:%llu\n", wordPair, hashNumber);
+				printf("Word Pair:  %s <> Hash Value: %llu\n", wordPair, hashNumber);
 
 				strcpy(str1, str2); // Move down a word, so copy str2 into str1 to continue to the next pair of words
 				toggleString = 1; // Keep toggleString set to 1 so we can continue moving down words and copying str2 to str1

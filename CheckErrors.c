@@ -36,3 +36,18 @@ int checkNumber(char *argv, int argc){
 	}
 	return 0;
 }
+
+int checkFile(char **argv, int argc, int startReadingFiles){
+	FILE *fp;
+	char *fileName;
+	for(int i = startReadingFiles; i < argc; i++){
+		fileName = argv[i];
+		fp = fopen(fileName, "r");
+		if(fp == NULL){
+			fprintf(stderr, "ERROR: file <%s> is invalid!\n", fileName);
+			return 1;
+		}
+		fclose(fp);
+	}
+	return 0;
+}
