@@ -1,8 +1,8 @@
 // Artem Tagintsev, CS360, 09/03/2024, hw1
 #include "CheckErrors.h"
-#include "list.h"
 #include "crc64.h"
 #include "getWord.h"
+#include "hash.h"
 
 int main(int argc, char *argv[]){	
 	// Make sure the user provides 2 or more arguments
@@ -41,6 +41,8 @@ int main(int argc, char *argv[]){
 	
 	// Before processing contents of a file, checks if all files are valid and exits if even just one is not a valid file
 	if(checkFile(argv, argc, startReadingFiles))  return 1;
+
+	struct hashEntry *hashTable = initHash(500);
 
 	// Start reading files and pulling out and passing words pairs
 	for(int i = startReadingFiles; i < argc; i++){

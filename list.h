@@ -11,3 +11,6 @@ struct node{
 	struct node *next;
 };
 
+// Function to initialize a sentinel node
+struct node *initNode();
+
