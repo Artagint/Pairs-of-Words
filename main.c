@@ -1,6 +1,5 @@
 // Artem Tagintsev, CS360, 09/03/2024, hw1
 #include "CheckErrors.h"
-#include "crc64.h"
 #include "getWord.h"
 #include "hash.h"
 
@@ -42,7 +41,8 @@ int main(int argc, char *argv[]){
 	// Before processing contents of a file, checks if all files are valid and exits if even just one is not a valid file
 	if(checkFile(argv, argc, startReadingFiles))  return 1;
 
-	struct hashEntry *hashTable = initHash(500);
+	// Initialize hashTable with a starting size of 200 buckets
+	struct hashEntry *hashTable = initHash(200);
 
 	// Start reading files and pulling out and passing words pairs
 	for(int i = startReadingFiles; i < argc; i++){
@@ -63,15 +63,15 @@ int main(int argc, char *argv[]){
 				// This is where memory gets allocated for the word pair, and passed to the hash function
 				char *wordPair;
 				wordPair = malloc(strlen(str1) + strlen(str2) + 2); // Allocated memory for str1 + str2 + space + null terminator
+				// printf("memory allocated for wordPair: %p\n", wordPair);
 				strcpy(wordPair, str1);
 				strcat(wordPair, " ");
 				strcat(wordPair, str2);
-				unsigned long long hashNumber = crc64(wordPair);
-				printf("Word Pair:  %s <> Hash Value: %llu\n", wordPair, hashNumber);
 
+				addToTable(hashTable, wordPair);
 				strcpy(str1, str2); // Move down a word, so copy str2 into str1 to continue to the next pair of words
 				toggleString = 1; // Keep toggleString set to 1 so we can continue moving down words and copying str2 to str1
-				free(wordPair);
+				// free(wordPair);
 			}
 			free(word);
 		}
@@ -80,5 +80,7 @@ int main(int argc, char *argv[]){
 		// word of the new file will be paired with the last word of the previous file esentially creating an extra word pair
 		toggleString = 0;
 	}
+	//printTable(hashTable);
+	freeHash(hashTable);
 	return 0;
 }
