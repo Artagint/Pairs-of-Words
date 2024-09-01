@@ -32,19 +32,21 @@ void addToTable(struct hashEntry *hashTable, void *data){
 		char *dataToAdd = (char *)data;
 		if(strcmp(dataInNode, dataToAdd) == 0){
 			current->count++;
+			free(dataToAdd);
 			return;
 		}
 		current = current->next;
 	}
 	addToList(listInBucket, data);
 }
-/*
+
 void printTable(struct hashEntry *hashTable){
 	for(int i = 0; i < hashTable->tableSize; i++){
 		printList(hashTable->buckets[i]);
 	}
 }
-*/
+
+
 void freeHash(struct hashEntry *hashTable){
 	for(int i = 0; i < hashTable->tableSize; i++){
 		freeList(hashTable->buckets[i]);

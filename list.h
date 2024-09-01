@@ -18,7 +18,7 @@ struct node *initNode();
 void addToList(struct node *sent, void *data);
 
 // Print the list
-//void printList(struct node *sent);
+void printList(struct node *sent);
 
 // Free all memory from every node in the linked list
 void freeList(struct node *sent);

@@ -14,7 +14,7 @@ struct hashEntry *initHash(int sizeOfTable);
 void addToTable(struct hashEntry *hashTable, void *data);
 
 // Print the hash table
-//void printTable(struct hashEntry *hashTable);
+void printTable(struct hashEntry *hashTable);
 
 // Free all memory associated with the hash table
 void freeHash(struct hashEntry *hashTable);

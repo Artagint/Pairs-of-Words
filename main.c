@@ -63,7 +63,6 @@ int main(int argc, char *argv[]){
 				// This is where memory gets allocated for the word pair, and passed to the hash function
 				char *wordPair;
 				wordPair = malloc(strlen(str1) + strlen(str2) + 2); // Allocated memory for str1 + str2 + space + null terminator
-				// printf("memory allocated for wordPair: %p\n", wordPair);
 				strcpy(wordPair, str1);
 				strcat(wordPair, " ");
 				strcat(wordPair, str2);
@@ -71,7 +70,6 @@ int main(int argc, char *argv[]){
 				addToTable(hashTable, wordPair);
 				strcpy(str1, str2); // Move down a word, so copy str2 into str1 to continue to the next pair of words
 				toggleString = 1; // Keep toggleString set to 1 so we can continue moving down words and copying str2 to str1
-				// free(wordPair);
 			}
 			free(word);
 		}
@@ -80,7 +78,7 @@ int main(int argc, char *argv[]){
 		// word of the new file will be paired with the last word of the previous file esentially creating an extra word pair
 		toggleString = 0;
 	}
-	//printTable(hashTable);
+	printTable(hashTable);
 	freeHash(hashTable);
 	return 0;
 }
