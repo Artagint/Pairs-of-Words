@@ -1,7 +1,7 @@
 // Artem Tagintsev, CS360, 09/03/2024, hw1
 #include "CheckErrors.h"
 #include "getWord.h"
-#include "hash.h"
+#include "arr.h"
 
 int main(int argc, char *argv[]){	
 	// Make sure the user provides 2 or more arguments
@@ -78,7 +78,16 @@ int main(int argc, char *argv[]){
 		// word of the new file will be paired with the last word of the previous file esentially creating an extra word pair
 		toggleString = 0;
 	}
-	printTable(hashTable);
+	
+	// Function that convers the hash table to an array
+	struct arrayEntry *array = tableToArray(hashTable);
+	int totalData = countTotalData(hashTable); // Get total amount of data in hash table
+
+	// Print out the array's full length or the first n entries depending if the user gave a number in the input or not
+	printArray(array, totalData, number);
+	//printf("array length: %d\n", totalData);
+	//printTable(hashTable);
+	
 	freeHash(hashTable);
 	return 0;
 }

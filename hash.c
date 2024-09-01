@@ -39,13 +39,13 @@ void addToTable(struct hashEntry *hashTable, void *data){
 	}
 	addToList(listInBucket, data);
 }
-
+/*
 void printTable(struct hashEntry *hashTable){
 	for(int i = 0; i < hashTable->tableSize; i++){
 		printList(hashTable->buckets[i]);
 	}
 }
-
+*/
 
 void freeHash(struct hashEntry *hashTable){
 	for(int i = 0; i < hashTable->tableSize; i++){

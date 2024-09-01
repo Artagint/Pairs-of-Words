@@ -18,7 +18,7 @@ void addToList(struct node *sent, void *data){
 	newNode->next = temp->next; 
 	temp->next = newNode;
 }
-
+/*
 void printList(struct node *sent){
 	struct node *temp = sent;
 	temp = temp->next;
@@ -27,7 +27,7 @@ void printList(struct node *sent){
 		temp = temp->next;
 	}
 }
-
+*/
 void freeList(struct node *sent){
 	// Loop through all the nodes and free them
 	while(sent != NULL){
