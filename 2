@@ -43,11 +43,11 @@ void addToTable(struct hashEntry *hashTable, void *data){
 	}
 	addToList(listInBucket, data);
 
-	// printf("BEFORE: %d <> %d\n", hashTable->tableSize, hashTable->bucketsFilled);
-	if(hashTable->bucketsFilled >= ((hashTable->tableSize*75)/100)){
-		// printf("AFTER: %d <> %d\n", hashTable->tableSize, hashTable->bucketsFilled);
+	printf("BEFORE: %d <> %d\n", hashTable->tableSize, hashTable->bucketsFilled);
+	if(hashTable->bucketsFilled >= (hashTable->tableSize*75)){
 		growTable(hashTable);
 	}
+	printf("AFTER: %d <> %d\n", hashTable->tableSize, hashTable->bucketsFilled);
 }
 
 // Grows the table by updating its size 3x and also rehashing all the values 
@@ -56,17 +56,14 @@ void growTable(struct hashEntry *hashTable){
 	struct hashEntry *grownHashTable = initHash(newTableSize);
 
 	// Rehash the all the values from the old table to get new values and add them into the grown hash table
-	for(int oldBucket = 0; oldBucket < hashTable->tableSize; oldBucket++){
+	for(int oldBucket; oldBucket < hashTable->tableSize; oldBucket++){
 		struct node *current = hashTable->buckets[oldBucket]->next; // Skip sentinel node
 		while(current != NULL){
 			unsigned long long hashValue = crc64(current->data);
 			int whichBucket = (hashValue%grownHashTable->tableSize);
 			addToList(grownHashTable->buckets[whichBucket], current->data);
-			struct node *temp = current;
 			current = current->next;
-			free(temp);
 		}
-		free(hashTable->buckets[oldBucket]);
 	}
 	free(hashTable->buckets);
 	hashTable->buckets = grownHashTable->buckets;

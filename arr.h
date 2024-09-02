@@ -20,5 +20,13 @@ struct arrayEntry *tableToArray(struct hashEntry *hashTable);
 // Simply prints the array
 void printArray(struct arrayEntry *array, int dataCount, int number);
 
+// Function needed for qsort(), set up to sort in descending order
+int compareNumbers(const void *passNum1, const void *passNum2);
+
+// Free the array
+void freeArray(struct arrayEntry *array, int dataCount);
+
+
+
 
 

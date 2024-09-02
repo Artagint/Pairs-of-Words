@@ -42,7 +42,8 @@ int main(int argc, char *argv[]){
 	if(checkFile(argv, argc, startReadingFiles))  return 1;
 
 	// Initialize hashTable with a starting size of 200 buckets
-	struct hashEntry *hashTable = initHash(200);
+	int sizeOfTable = 100;
+	struct hashEntry *hashTable = initHash(sizeOfTable);
 
 	// Start reading files and pulling out and passing words pairs
 	for(int i = startReadingFiles; i < argc; i++){
@@ -59,7 +60,6 @@ int main(int argc, char *argv[]){
 			// If toggleString is 1, copy the word into str2
 			else{
 				strcpy(str2, word); 
-
 				// This is where memory gets allocated for the word pair, and passed to the hash function
 				char *wordPair;
 				wordPair = malloc(strlen(str1) + strlen(str2) + 2); // Allocated memory for str1 + str2 + space + null terminator
@@ -74,20 +74,17 @@ int main(int argc, char *argv[]){
 			free(word);
 		}
 		fclose(fp);
-		// After file is closed set toggleString back to 0, this is crucial because if you don't do this then the first 
-		// word of the new file will be paired with the last word of the previous file esentially creating an extra word pair
+		// After file is closed set toggleString back to 0
 		toggleString = 0;
 	}
 	
-	// Function that convers the hash table to an array
 	struct arrayEntry *array = tableToArray(hashTable);
 	int totalData = countTotalData(hashTable); // Get total amount of data in hash table
-
-	// Print out the array's full length or the first n entries depending if the user gave a number in the input or not
-	printArray(array, totalData, number);
-	//printf("array length: %d\n", totalData);
-	//printTable(hashTable);
+	qsort(array, totalData, sizeof(struct arrayEntry), compareNumbers);
+	printArray(array, totalData, number); // Print out the contents of the array depending on user input
 	
+	// Free hash table and the array
 	freeHash(hashTable);
+	freeArray(array, totalData);
 	return 0;
 }

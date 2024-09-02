@@ -39,13 +39,35 @@ struct arrayEntry *tableToArray(struct hashEntry *hashTable){
 	return array;
 }
 
-// Print the array
+// Check for user number argument and then print arrat accordingly
 void printArray(struct arrayEntry *array, int dataCount, int number){
+	// We don't want extra loops if user inputs bigger number than total amount of word pairs, so just set number = dataCount to print whole table
+	if(number > dataCount){
+		number = dataCount;
+	}
+	// Checks if the user provided a number in the input
 	if(number > 0){
 		dataCount = number;
 	}
-	// TODO: add an errorcheck that checks if the number is bigger than array length
+	// Go through the array and print its contents
 	for(int i = 0; i < dataCount; i++){
 		printf("%10d %s\n", array[i].arrayCount, (char *)array[i].arrayData);
 	}
 }
+
+// Sort the array from qsort()
+int compareNumbers(const void *passNum1, const void *passNum2){
+	struct arrayEntry *num1 = (struct arrayEntry *)passNum1;
+	struct arrayEntry *num2 = (struct arrayEntry *)passNum2;
+	return (num2->arrayCount - num1->arrayCount); // Sort array from largest to smallest number
+}
+
+// Free the array
+void freeArray(struct arrayEntry *array, int dataCount){
+	for(int i = 0; i < dataCount; i++){
+		free(array[i].arrayData);
+	}
+	free(array);
+}
+
+
