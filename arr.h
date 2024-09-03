@@ -1,4 +1,9 @@
-// Artem Tagintsev, CS360, hw1
+// Artem Tagintsev, CS360, hw1, 09/04/2024
+/*
+ * Holds the struct for the array and also holds all the function prototypes that are used for the array
+ * with the addition of also have the compareNumbers function needed for qsort() which relates to arrays
+ * since it is meant to be used with arrays.
+ */
 #include "hash.h"
 #include <stdio.h>
 #include <string.h>

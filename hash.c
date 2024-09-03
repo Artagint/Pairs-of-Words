@@ -1,8 +1,12 @@
-// Artem Tagintsev, CS360, hw1
+// Artem Tagintsev, CS360, hw1, 09/04/2024
+/*
+ * This is the file that holds all the functions that are for the hash table, this also includes explaining why I chose to grow the hash table
+ * when the load factor is 75% or more (which I explain in the comment block above 'growTable'.
+ */
 #include "hash.h"
 #include "crc64.h"
 
-// Call initHash function with specified size of the hash table, will be '500' in this case
+// Returns a pointer to the hashtable after if has been initialized
 struct hashEntry *initHash(int sizeOfTable){
 	// Allocate memory for hashtable itself and also the array of buckets we will be using
 	struct hashEntry *hashTable = malloc(sizeof(struct hashEntry)); 
@@ -14,19 +18,23 @@ struct hashEntry *initHash(int sizeOfTable){
 	for(int i = 0; i < sizeOfTable; i++){
 		hashTable->buckets[i] = initNode();
 	}
-	return hashTable; // Return pointer to hashEntry
+	return hashTable;
 }
 
-// Adds node to the bucket in the hash table
+/*
+ *  Adds data to the hash table (in this case a wordPair), and if the wordPair already exists then increment its count in the node.
+ *  Also keep track of the load factor here so that it doesn't exceed 75% (I explain why in the 'growTable' function), if the size
+ *  of the table does exceed 75% of buckets filled, then the 'growTable' function is called.
+ */ 
 void addToTable(struct hashEntry *hashTable, void *data){
 	// Get hash value and then determine which bucket it goes into
-	unsigned long long hashValue = crc64(data); 
-	int whichBucket = (hashValue%hashTable->tableSize);
-
+	unsigned long long hashValue = crc64(data);
+       	int tableSize = hashTable->tableSize;	
+	int whichBucket = (hashValue % tableSize);
 	struct node *listInBucket = hashTable->buckets[whichBucket]; // Grab the sent node in the bucket we are in
-	struct node *current = listInBucket->next; // Make a var for simplicity starting after the sentinel node
+	struct node *current = listInBucket->next; // Skip the sentinel node (for insertion)
 	
-	// Check past the sentinel if the bucket has been filled or not
+	// If the bucket we are filling is empty, then increment the count of bucketsFilled to keeep track of the load factor
 	if(current == NULL) hashTable->bucketsFilled++;
 	
 	// Loop through and check if node already exists, if it does then increment count, if not then add node to the list
@@ -41,41 +49,60 @@ void addToTable(struct hashEntry *hashTable, void *data){
 		}
 		current = current->next;
 	}
+	// If wordPair wasn't found in the linked list, then add it to the end of the list
 	addToList(listInBucket, data);
 
+	// Check the load factor and call growTable if 75% or more of the buckets are filled in the hashtable
 	// printf("BEFORE: %d <> %d\n", hashTable->tableSize, hashTable->bucketsFilled);
-	if(hashTable->bucketsFilled >= ((hashTable->tableSize*75)/100)){
+	int fullBuckets = hashTable->bucketsFilled;
+	int sizeOfTable = ((hashTable->tableSize*75)/100);
+	if(fullBuckets >= sizeOfTable){
 		// printf("AFTER: %d <> %d\n", hashTable->tableSize, hashTable->bucketsFilled);
 		growTable(hashTable);
 	}
 }
 
-// Grows the table by updating its size 3x and also rehashing all the values 
-void growTable(struct hashEntry *hashTable){
-	int newTableSize = (hashTable->tableSize*3);
-	struct hashEntry *grownHashTable = initHash(newTableSize);
+/*
+ * This is where we grow the hash table when 'growTable' is called in the 'addToTable' function if the load factors is 75% or more.
+ * How this works is a new hash table is made and all the data gets rehashed and put into the new respective buckets, then after that
+ * we want to update the oldTable (since newTable is temporary) with the newTable information but giving all its data like the wordPair,
+ * bucketsFilled, and tableSize. The reason I chose load factor and specifically 75% is due to my testing. At first I wanted to grow the table
+ * if a chain in a bucket matched the length of the tableSize, but that didn't seem like the most efficient use of a hashtable. So then I went 
+ * to load factor and at first thought about growing the table when all buckets are filled but when I tested that it took a lot of data to fill 
+ * all the buckets of the table. I then thought about doing 50% filled but that just seem like too much growing. So I simply stuck witht the 
+ * middle ground of 75% since when that much of the buckets are filled the performance of the hash table is still relatively good and it can 
+ * then grow 3x in size over and over as many times needed. We then don't have to return anything in this function since we update the pointer 
+ * 'oldTable' with our temporary 'newTable' data.
+ */
+void growTable(struct hashEntry *oldTable){
+	int newTableSize = (oldTable->tableSize*3); // 3x the size of oldTable
+	struct hashEntry *newTable = initHash(newTableSize); // Make a temporary newTable
+	int oldTableSize = oldTable->tableSize;
 
-	// Rehash the all the values from the old table to get new values and add them into the grown hash table
-	for(int oldBucket = 0; oldBucket < hashTable->tableSize; oldBucket++){
-		struct node *current = hashTable->buckets[oldBucket]->next; // Skip sentinel node
+	// Loop through every bucket in the oldTable and rehash, determine what bucket data goes into and insert into the linked list in that bucket
+	for(int i = 0; i < oldTableSize; i++){
+		struct node *current = oldTable->buckets[i]->next; // Skip the sent node
+		// Loop through the linked list in the bucket and add the data to the newTable's linked list in the bucket
 		while(current != NULL){
 			unsigned long long hashValue = crc64(current->data);
-			int whichBucket = (hashValue%grownHashTable->tableSize);
-			addToList(grownHashTable->buckets[whichBucket], current->data);
+			int whichBucket = (hashValue % newTableSize);
+			addToList(newTable->buckets[whichBucket], current->data); // Call the addToList with the current bucket and data to add
+			// Save a pointer to the next node before freeing current then free after moving to the next node
 			struct node *temp = current;
 			current = current->next;
 			free(temp);
 		}
-		free(hashTable->buckets[oldBucket]);
+		free(oldTable->buckets[i]); // Free the bucket after we are done with it
 	}
-	free(hashTable->buckets);
-	hashTable->buckets = grownHashTable->buckets;
-	hashTable->tableSize = newTableSize;
-	hashTable->bucketsFilled = grownHashTable->bucketsFilled;
-	free(grownHashTable);
+	free(oldTable->buckets);
+	// Update oldTable with the data of newTable
+	oldTable->buckets = newTable->buckets;
+	oldTable->tableSize = newTableSize;
+	oldTable->bucketsFilled = newTable->bucketsFilled;
+	free(newTable);
 }	
 
-/*
+/* I used this function for testing the hash table during development, don't need it anymore but still thought I should keep it in the code but commented out
 void printTable(struct hashEntry *hashTable){
 	for(int i = 0; i < hashTable->tableSize; i++){
 		printList(hashTable->buckets[i]);
@@ -83,6 +110,7 @@ void printTable(struct hashEntry *hashTable){
 }
 */
 
+// Loop through every bucket in the hash table call freeList to free the linked lists in those buckets, then free the buckets and the hash table itself
 void freeHash(struct hashEntry *hashTable){
 	for(int i = 0; i < hashTable->tableSize; i++){
 		freeList(hashTable->buckets[i]);

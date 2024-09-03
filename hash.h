@@ -1,4 +1,5 @@
-// Artem Tagintsev, CS360, hw1
+// Artem Tagintsev, CS360, hw1, 09/04/2024
+// Holds struct for the hash table and function prototypes
 #include "list.h"
 
 struct hashEntry{
@@ -17,7 +18,7 @@ void addToTable(struct hashEntry *hashTable, void *data);
 void growTable(struct hashEntry *hashTable);
 
 // Print the hash table
-void printTable(struct hashEntry *hashTable);
+// void printTable(struct hashEntry *hashTable);
 
 // Free all memory associated with the hash table
 void freeHash(struct hashEntry *hashTable);

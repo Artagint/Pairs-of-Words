@@ -1,4 +1,13 @@
-// Artem Tagintsev, CS360, 09/03/2024, hw1
+// Artem Tagintsev, CS360, 09/03/2024, hw1, 09/04/2024
+/*
+ * This is the main file of the program and ties everything together. First it starts off by calling functions that check
+ * for proper input and file I/O then moves down to the main logic of the program where it loops through every file and
+ * reads and makes any word pairs that are found which are then passed onto to hash table and stored accordingly and counted 
+ * if the same word pair shows up more than once. Then functions are called to convert the hash table into an array by transferring
+ * all its data into the array, the array is then sorted using qsort() and printed out with the count and word pair depending
+ * on if the user provided a number in the command line, if not then print all the data. All data is also printed in descending order
+ * by count. 
+ */
 #include "CheckErrors.h"
 #include "getWord.h"
 #include "arr.h"
@@ -33,15 +42,15 @@ int main(int argc, char *argv[]){
 
 	FILE *fp;
 	char *fileName;
-	char str1[200]; // Stores string 1
-	char str2[200]; // Stores string 2
+	char str1[200];
+	char str2[200];
 	int toggleString = 0; // Used to toggle between str1 and str2, when str1 is made, go to str2 and vice versa
 	char *word; // Pointer that allocates memory for where we store the next word
 	
 	// Before processing contents of a file, checks if all files are valid and exits if even just one is not a valid file
 	if(checkFile(argv, argc, startReadingFiles))  return 1;
 
-	// Initialize hashTable with a starting size of 200 buckets
+	// Initialize hashTable with a starting size of 100 buckets
 	int sizeOfTable = 100;
 	struct hashEntry *hashTable = initHash(sizeOfTable);
 

@@ -1,5 +1,5 @@
 // Artem Tagintsev, CS360, hw1
-// This file simply holds the functions for error checking code
+// This file simply holds the functions for error checking code that includes input I/O and file I/O
 #include "CheckErrors.h"
 
 // Make sure the user provides 2 or more arguments
@@ -37,6 +37,7 @@ int checkNumber(char *argv, int argc){
 	return 0;
 }
 
+// This check loops through every file and checks if it exists or not, returns 1 if it doesn't and exists the program
 int checkFile(char **argv, int argc, int startReadingFiles){
 	FILE *fp;
 	char *fileName;
