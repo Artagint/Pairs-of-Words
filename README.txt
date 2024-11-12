@@ -1,4 +1,4 @@
--This porgram counts the amount of word pairs in any file(s)
+-This program counts the amount of word pairs in any file(s)
 
 -To compile this program simply type 'make' into the command line where the Makefile is located
 
